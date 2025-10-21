@@ -1,0 +1,80 @@
+
+services:
+  # Service de l'application Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pront-ix-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage/app/public:/var/www/html/storage/app/public
+    networks:
+      - pront-ix-network
+    depends_on:
+      - db
+    environment:
+      - PHP_IDE_CONFIG=serverName=pront-ix-app
+
+  # Serveur web Caddy
+  caddy:
+    image: caddy:2-alpine
+    container_name: pront-ix-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - pront-ix-network
+    depends_on:
+      - app
+
+  # Base de données PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: pront-ix-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pront-ix-network
+
+  # pgAdmin pour la gestion de la base de données
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pront-ix-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - pront-ix-network
+    depends_on:
+      - db
+
+networks:
+  pront-ix-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  caddy_data:
+  caddy_config:
