@@ -1,0 +1,200 @@
+.network-page {
+  min-height: 100vh;
+  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header */
+.network-header {
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.back-button {
+  font-size: 1.5rem;
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+.page-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-line {
+  height: 3px;
+  background-color: #1e40af;
+  width: 100%;
+}
+
+/* Contenu principal */
+.network-content {
+  padding: 1.5rem 1rem;
+}
+
+.instruction-text {
+  font-size: 1rem;
+  color: black;
+  margin: 0 0 2rem 0;
+  font-weight: normal;
+}
+
+/* Options de réseau */
+.network-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.network-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+}
+
+.network-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* MTN MoMo */
+.mtn-momo {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-color: #f59e0b;
+}
+
+.mtn-icon {
+  width: 50px;
+  height: 50px;
+  background: #fbbf24;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  border: 2px solid white;
+  overflow: hidden;
+}
+
+.network-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+/* MOOV Money */
+.moov-money {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border-color: #3b82f6;
+}
+
+.moov-icon {
+  width: 50px;
+  height: 50px;
+  background: #1e40af;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  border: 2px solid white;
+  overflow: hidden;
+}
+
+/* ORANGE Money */
+.orange-money {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  border-color: #ea580c;
+}
+
+.orange-icon {
+  width: 50px;
+  height: 50px;
+  background: #ea580c;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  border: 2px solid white;
+  overflow: hidden;
+}
+
+/* WACE CI */
+.wace-ci {
+  background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+  border-color: #0891b2;
+}
+
+.wace-icon {
+  width: 50px;
+  height: 50px;
+  background: #0891b2;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  border: 2px solid white;
+  overflow: hidden;
+}
+
+.option-text {
+  font-size: 1rem;
+  font-weight: bold;
+  color: black;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .network-content {
+    padding: 1rem 0.8rem;
+  }
+  
+  .instruction-text {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .network-option {
+    padding: 0.8rem;
+  }
+  
+  .option-text {
+    font-size: 0.9rem;
+  }
+  
+  .mtn-icon,
+  .moov-icon,
+  .orange-icon,
+  .wace-icon {
+    width: 45px;
+    height: 45px;
+  }
+}
