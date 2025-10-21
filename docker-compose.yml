@@ -5,23 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pront-ix-app
+    container_name: adm-app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
       - ./storage/app/public:/var/www/html/storage/app/public
     networks:
-      - pront-ix-network
+      - adm-network
     depends_on:
       - db
     environment:
-      - PHP_IDE_CONFIG=serverName=pront-ix-app
+      - PHP_IDE_CONFIG=serverName=adm-app
 
   # Serveur web Caddy
   caddy:
     image: caddy:2-alpine
-    container_name: pront-ix-caddy
+    container_name: adm-caddy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -32,14 +32,14 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - pront-ix-network
+      - adm-network
     depends_on:
       - app
 
   # Base de données PostgreSQL
   db:
     image: postgres:15-alpine
-    container_name: pront-ix-db
+    container_name: adm-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_DATABASE}
@@ -50,12 +50,12 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - pront-ix-network
+      - adm-network
 
   # pgAdmin pour la gestion de la base de données
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pront-ix-pgadmin
+    container_name: adm-pgadmin
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -65,12 +65,12 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - pront-ix-network
+      - adm-network
     depends_on:
       - db
 
 networks:
-  pront-ix-network:
+  adm-network:
     driver: bridge
 
 volumes:
