@@ -1,52 +1,41 @@
-﻿@extends('layouts.app')
+@extends('layouts.mobile')
 
 @section('title', 'Accueil')
 
 @section('content')
-<main>
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">EN MARCHE POUR UNE CÔTE<br> D'IVOIRE SOUVERAINE, JUSTE,<br> ET FORTE</h1>
-                    <p class="hero-slogan">SOUVERAINETÉ - ÉGALITÉ - JUSTICE</p>
-                </div>
-                
-                <div class="candidate-card">
-                    <div class="candidate-photo">
-                        <img src="/images/pa.png" alt="Ahoua Don Mello" class="candidate-image">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="screen home-screen">
+    <div class="home-frame">
+        <header class="home-header">
+            <img src="/images/ad.png" alt="ADM" class="home-header__logo">
+            <a href="/network" class="home-header__cta">Faire un don</a>
+        </header>
 
-    <section class="vision-section">
-        <div class="container">
-            <div class="vision-box">
-                <h2 class="vision-title">Notre Vision</h2>
-                <p class="vision-text">
-                    Ensemble, construisons un avenir prospère et durable pour notre nation. 
-                    Votre soutien est essentiel pour réaliser nos ambitions communes et 
-                    transformer notre vision en réalité concrète pour tous.
-                </p>
-            </div>
-        </div>
-    </section>
+        <div class="hero-card">
+            <div class="hero-card__info">
+                <span class="hero-card__tag">Campagne présidentielle 2025</span>
+                <h1 class="hero-card__title">EN MARCHE POUR UNE CÔTE D'IVOIRE SOUVERAINE, JUSTE ET FORTE</h1>
+                <p class="hero-card__subtitle">Souveraineté • Égalité • Justice</p>
 
-    <section class="cta-section">
-        <div class="container">
-            <div class="button-group">
-                <a href="/network" class="cta-button">
-                    <span>💝</span>
-                    <span>Faire un Don</span>
-                </a>
-                <a href="/presentation" class="candidate-button">
-                    <span>👤</span>
-                    <span>En savoir plus</span>
-                </a>
+                <div class="hero-card__actions">
+                    <a href="/network" class="hero-action hero-action--primary">Je contribue maintenant</a>
+                    <a href="/presentation" class="hero-action hero-action--outline">Découvrir la vision</a>
+                </div>
+            </div>
+
+            <div class="hero-card__media">
+                <div class="hero-card__portrait">
+                    <img src="/images/pa.png" alt="Ahoua Don Mello">
+                </div>
             </div>
         </div>
-    </section>
-</main>
+
+        <div class="vision-card">
+            <h2 class="vision-card__title">Notre vision pour 2030</h2>
+            <p class="vision-card__text">
+                « Une Côte d'Ivoire prospère où chaque citoyen a accès à l'éducation, aux soins de santé et aux opportunités d'emploi.
+                Ensemble, nous bâtirons un pays uni, fort de ses valeurs et résolument tourné vers l'avenir. »
+            </p>
+        </div>
+    </div>
+</div>
 @endsection
