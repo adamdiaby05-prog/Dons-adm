@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\PagesController;
 
 Route::get('/', [PagesController::class, 'home']);
 Route::get('/network', [PagesController::class, 'network']);
@@ -60,7 +61,7 @@ Route::get('/payments', function() {
     }
     
     // FedaPay API configuration
-    $apiKey = config('fedapay.secret_key');
+    $apiKey = config('fedapay.secret_key', 'your_secret_key_here');
     $baseUrl = config('fedapay.base_url', 'https://api.fedapay.com/v1');
     
     // Force Orange Money for ALL networks (CORS-free solution)
