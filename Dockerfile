@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
+    nginx \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Install Composer
@@ -29,8 +30,19 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache
 
-# Expose port
-EXPOSE 8000
+# Copy Nginx configuration
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+# Create startup script
+RUN echo '#!/bin/bash' > /start.sh && \
+    echo 'service php8.2-fpm start' >> /start.sh && \
+    echo 'service nginx start' >> /start.sh && \
+    echo 'tail -f /var/log/nginx/error.log' >> /start.sh && \
+    chmod +x /start.sh
+
+# Expose port 80
+EXPOSE 80
+
+# Start services
+CMD ["/start.sh"]
