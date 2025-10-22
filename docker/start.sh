@@ -26,14 +26,17 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:YOUR_APP_KEY_HERE" ]; then
     php artisan key:generate --no-interaction
 fi
 
+# Test database connection
+echo "Testing database connection..."
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_DATABASE -f /var/www/database/sql/test_connection.sql || echo "Database connection test failed"
+
+# Create sessions table directly with SQL
+echo "Creating sessions table with SQL..."
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_DATABASE -f /var/www/database/sql/create_sessions_table.sql || echo "Sessions table creation failed"
+
 # Run migrations
 echo "Running migrations..."
 php artisan migrate --force --no-interaction || echo "Migration failed, continuing..."
-
-# Create sessions table if it doesn't exist
-echo "Creating sessions table..."
-php artisan session:table --force || echo "Sessions table creation failed"
-php artisan migrate --force --no-interaction || echo "Migration failed again"
 
 # Clear and cache config
 echo "Optimizing application..."
