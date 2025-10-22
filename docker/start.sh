@@ -2,12 +2,23 @@
 
 # Wait for database to be ready
 echo "Waiting for database connection..."
-while ! php artisan migrate:status > /dev/null 2>&1; do
-    echo "Database not ready, waiting..."
-    sleep 2
+max_attempts=30
+attempt=0
+
+while [ $attempt -lt $max_attempts ]; do
+    if php artisan migrate:status > /dev/null 2>&1; then
+        echo "Database is ready!"
+        break
+    fi
+    echo "Database not ready, waiting... (attempt $((attempt + 1))/$max_attempts)"
+    sleep 5
+    attempt=$((attempt + 1))
 done
 
-echo "Database is ready!"
+if [ $attempt -eq $max_attempts ]; then
+    echo "Database connection failed after $max_attempts attempts"
+    echo "Continuing anyway..."
+fi
 
 # Generate application key if not exists
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:YOUR_APP_KEY_HERE" ]; then
@@ -17,7 +28,12 @@ fi
 
 # Run migrations
 echo "Running migrations..."
-php artisan migrate --force --no-interaction
+php artisan migrate --force --no-interaction || echo "Migration failed, continuing..."
+
+# Create sessions table if it doesn't exist
+echo "Creating sessions table..."
+php artisan session:table --force || echo "Sessions table creation failed"
+php artisan migrate --force --no-interaction || echo "Migration failed again"
 
 # Clear and cache config
 echo "Optimizing application..."
