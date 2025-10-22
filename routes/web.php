@@ -28,27 +28,76 @@ Route::get('/test', function() {
     return response()->json(['message' => 'Test route works']);
 });
 
+Route::get('/test-payment', function() {
+    $amount = request('amount', 1000);
+    $network = request('network', 'wave');
+    $phone = request('phone', '+225 0505979884');
+    
+    // Normalize phone
+    $digits = preg_replace('/[^0-9]/', '', $phone);
+    if (str_starts_with($digits, '225')) {
+        $digits = substr($digits, 3);
+    }
+    if ($digits !== '' && !str_starts_with($digits, '0')) {
+        $digits = '0' . $digits;
+    }
+    if (strlen($digits) > 10) {
+        $digits = substr($digits, 0, 10);
+    }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Test payment endpoint works',
+        'data' => [
+            'amount' => $amount,
+            'network' => $network,
+            'original_phone' => $phone,
+            'normalized_phone' => $digits,
+            'phone_valid' => preg_match('/^0[0-9]{9}$/', $digits)
+        ]
+    ]);
+});
+
 // Payment routes - FedaPay integration + Database storage
 Route::get('/payments', function() {
     $amount = request('amount', 1000);
     $network = request('network', 'wave');
     $phone = request('phone', '+225 0505979884');
     
+    // Debug logging
+    \Log::info('Payment request received', [
+        'amount' => $amount,
+        'network' => $network,
+        'phone' => $phone
+    ]);
+    
     // Normalize CI phone for FedaPay: send local number (0XXXXXXXXX) with country 'ci'
+    // Remove all non-digit characters
     $digits = preg_replace('/[^0-9]/', '', $phone);
-    // Strip leading 225 if present
+    
+    // Remove 225 prefix if present
     if (str_starts_with($digits, '225')) {
         $digits = substr($digits, 3);
     }
-    // Ensure leading 0
-    if ($digits !== '' && $digits[0] !== '0') {
+    
+    // Ensure it starts with 0
+    if ($digits !== '' && !str_starts_with($digits, '0')) {
         $digits = '0' . $digits;
     }
+    
     // Keep only 10 digits
     if (strlen($digits) > 10) {
-        $digits = substr($digits, -10);
+        $digits = substr($digits, 0, 10);
     }
+    
     $localPhone = $digits;
+    
+    // Debug logging after normalization
+    \Log::info('Phone normalization result', [
+        'original_phone' => $phone,
+        'normalized_phone' => $localPhone,
+        'digits_length' => strlen($localPhone)
+    ]);
 
     // Validate CI local format 0XXXXXXXXX (10 digits)
     if (!preg_match('/^0[0-9]{9}$/', $localPhone)) {
