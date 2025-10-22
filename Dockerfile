@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libpq-dev \
     nginx \
+    supervisor \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Install Composer
@@ -34,15 +35,22 @@ RUN chown -R www-data:www-data /var/www \
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Create startup script
-RUN echo '#!/bin/bash' > /start.sh && \
-    echo 'service php8.2-fpm start' >> /start.sh && \
-    echo 'service nginx start' >> /start.sh && \
-    echo 'tail -f /var/log/nginx/error.log' >> /start.sh && \
-    chmod +x /start.sh
+# Copy Supervisor configuration
+RUN echo '[supervisord]' > /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'nodaemon=true' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '[program:php-fpm]' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'command=php-fpm -F' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'autostart=true' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'autorestart=true' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '[program:nginx]' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'command=nginx -g "daemon off;"' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'autostart=true' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'autorestart=true' >> /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start services
-CMD ["/start.sh"]
+# Start Supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
