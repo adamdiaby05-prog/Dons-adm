@@ -124,18 +124,88 @@ Route::get('/payments', function() {
             ], 400);
         }
         
-        // For now, return a test response instead of calling FedaPay
+        // FedaPay API configuration
+        $apiKey = config('fedapay.secret_key', 'sk_live_aV762HQPCw3r5rqra7CAykgv');
+        $baseUrl = config('fedapay.base_url', 'https://api.fedapay.com/v1');
+        
+        // Force Orange Money for ALL networks (CORS-free solution)
+        $paymentMode = 'orange_money'; // Universal Orange Money mode
+        
+        // Create transaction with explicit mode
+        $transactionData = [
+            'description' => 'Don pour la campagne ADM',
+            'amount' => intval($amount),
+            'currency' => ['iso' => 'XOF'],
+            'callback_url' => 'https://adm.pront-ix.com/payment-success',
+            'customer' => [
+                'firstname' => 'Donateur',
+                'lastname' => 'ADM',
+                'email' => 'donateur@adm.ci',
+                'phone_number' => [
+                    'number' => $localPhone,
+                    'country' => 'ci'
+                ]
+            ],
+            'merchant_reference' => 'DON_ADM_' . time(),
+            'mode' => $paymentMode
+        ];
+        
+        // Create transaction using cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $baseUrl . '/transactions');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($transactionData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $transactionResponse = curl_exec($ch);
+        $transactionHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($transactionHttpCode !== 200) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur création transaction FedaPay: ' . $transactionResponse,
+                'http_code' => $transactionHttpCode
+            ], 500);
+        }
+        
+        $transaction = json_decode($transactionResponse, true);
+        $transactionId = $transaction['v1/transaction']['id'];
+        $paymentUrl = $transaction['v1/transaction']['payment_url'];
+        
+        // Store payment in database
+        try {
+            $payment = Payment::create([
+                'contribution_id' => 1, // Default contribution ID
+                'payment_reference' => 'FEDAPAY_' . $transactionId,
+                'amount' => $amount,
+                'payment_method' => $paymentMode,
+                'phone_number' => $localPhone,
+                'status' => 'pending',
+                'gateway_response' => json_encode($transaction)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Database payment creation failed', [
+                'error' => $e->getMessage(),
+                'transaction_id' => $transactionId
+            ]);
+            
+            // Continue even if database fails
+        }
+        
         return response()->json([
             'success' => true,
-            'message' => 'Test payment endpoint works - FedaPay integration ready',
-            'data' => [
-                'amount' => $amount,
-                'network' => $network,
-                'original_phone' => $phone,
-                'normalized_phone' => $localPhone,
-                'phone_valid' => true,
-                'fedapay_ready' => true
-            ]
+            'message' => 'Transaction FedaPay créée avec succès',
+            'payment_url' => $paymentUrl,
+            'transaction_id' => $transactionId,
+            'amount' => $amount,
+            'phone' => $localPhone,
+            'network' => $network
         ]);
         
     } catch (\Exception $e) {

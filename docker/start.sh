@@ -34,6 +34,10 @@ PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_DATA
 echo "Creating sessions table with SQL..."
 PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_DATABASE -f /var/www/database/sql/create_sessions_table.sql || echo "Sessions table creation failed"
 
+# Fix payments table structure
+echo "Fixing payments table structure..."
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USERNAME -d $DB_DATABASE -f /var/www/database/sql/fix_payments_table.sql || echo "Payments table fix failed"
+
 # Run migrations
 echo "Running migrations..."
 php artisan migrate --force --no-interaction || echo "Migration failed, continuing..."
