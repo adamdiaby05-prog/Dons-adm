@@ -1,65 +1,36 @@
-# Utiliser une image PHP-FPM 8.2 officielle comme base
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm
 
-# Définir le répertoire de travail
-WORKDIR /var/www/html
-
-# Installer les dépendances système nécessaires
-RUN apk add --no-cache \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libfreetype6-dev \
-    libxml2-dev \
-    postgresql-dev \
-    unzip \
-    curl \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     git \
-    bash \
-    composer
-
-# Configurer et installer les extensions PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-    gd \
-    pdo \
-    pdo_pgsql \
-    pgsql \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
-    bcmath \
-    opcache \
-    xml \
-    ctype \
-    iconv \
-    intl \
-    pdo_mysql \
-    dom \
-    filter \
-    gd \
-    hash \
-    json \
-    mbstring \
-    session \
-    simplexml \
-    tokenizer \
-    curl
+    unzip \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
-# Installer Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier le script d'entrée
-COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Set working directory
+WORKDIR /var/www
 
-# Définir l'utilisateur par défaut
-RUN addgroup -g 1000 -S laravel && \
-    adduser -u 1000 -S laravel -G laravel
+# Copy application files
+COPY . .
 
-# Changer le propriétaire des répertoires
-RUN chown -R laravel:laravel /var/www/html
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Exécuter le script d'entrée
-ENTRYPOINT ["entrypoint.sh"]
+# Set permissions
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage \
+    && chmod -R 755 /var/www/bootstrap/cache
 
-# Démarrer PHP-FPM
+# Expose port
+EXPOSE 8000
+
+# Start PHP-FPM
 CMD ["php-fpm"]

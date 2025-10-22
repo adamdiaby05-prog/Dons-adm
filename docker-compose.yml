@@ -1,80 +1,49 @@
+version: '3.8'
 
 services:
-  # Service de l'application Laravel
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: pront-ix-app
+    build: .
+    container_name: laravel-dons-app
     restart: unless-stopped
-    working_dir: /var/www/html
+    working_dir: /var/www
     volumes:
-      - ./:/var/www/html
-      - ./storage/app/public:/var/www/html/storage/app/public
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - pront-ix-network
+      - dons-network
     depends_on:
-      - db
-    environment:
-      - PHP_IDE_CONFIG=serverName=pront-ix-app
+      - database
 
-  # Serveur web Caddy
-  caddy:
-    image: caddy:2-alpine
-    container_name: pront-ix-caddy
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-dons-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:80"
     volumes:
-      - ./:/var/www/html
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - pront-ix-network
+      - dons-network
     depends_on:
       - app
 
-  # Base de données PostgreSQL
-  db:
-    image: postgres:15-alpine
-    container_name: pront-ix-db
+  database:
+    image: postgres:15
+    container_name: laravel-dons-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: Dons
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 9zctibtytwmv640w
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     networks:
-      - pront-ix-network
-
-  # pgAdmin pour la gestion de la base de données
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pront-ix-pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - pront-ix-network
-    depends_on:
-      - db
+      - dons-network
 
 networks:
-  pront-ix-network:
+  dons-network:
     driver: bridge
 
 volumes:
   postgres_data:
-  pgadmin_data:
-  caddy_data:
-  caddy_config:
