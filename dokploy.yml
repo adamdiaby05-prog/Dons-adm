@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: laravel-dons-app
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=pgsql
+      - DB_HOST=dons-database-nl3z8n
+      - DB_PORT=5432
+      - DB_DATABASE=Dons
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=9zctibtytwmv640w
+      - FEDAPAY_PUBLIC_KEY=${FEDAPAY_PUBLIC_KEY}
+      - FEDAPAY_SECRET_KEY=${FEDAPAY_SECRET_KEY}
+      - FEDAPAY_ENVIRONMENT=live
+      - FEDAPAY_BASE_URL=https://api.fedapay.com/v1
+    networks:
+      - dons-network
+    depends_on:
+      - database
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-dons-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - dons-network
+    depends_on:
+      - app
+
+  database:
+    image: postgres:15
+    container_name: laravel-dons-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: Dons
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 9zctibtytwmv640w
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dons-network
+
+networks:
+  dons-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
