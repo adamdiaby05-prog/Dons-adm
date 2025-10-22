@@ -26,6 +26,9 @@ COPY . .
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Generate application key if not exists
+RUN php artisan key:generate --no-interaction || true
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
@@ -34,6 +37,10 @@ RUN chown -R www-data:www-data /var/www \
 # Copy Nginx configuration
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Copy startup script
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Copy Supervisor configuration
 RUN echo '[supervisord]' > /etc/supervisor/conf.d/supervisord.conf && \
@@ -52,5 +59,5 @@ RUN echo '[supervisord]' > /etc/supervisor/conf.d/supervisord.conf && \
 # Expose port 80
 EXPOSE 80
 
-# Start Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start with custom script
+CMD ["/start.sh"]
