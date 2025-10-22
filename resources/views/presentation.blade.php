@@ -1,47 +1,57 @@
-﻿@extends('layouts.app')
+@extends('layouts.mobile')
 
-@section('title', 'PrÃ©sentation du candidat')
+@section('title', 'Présentation')
 
 @section('content')
-<div class="presentation-page">
-  <header class="presentation-header">
-    <h1 class="page-title">PrÃ©sentation du candidat</h1>
-    <div class="header-line"></div>
-  </header>
+<div class="screen presentation-screen">
+    <header class="top-bar">
+        <a href="javascript:history.back()" class="top-bar__leading" aria-label="Retour">
+            <span class="icon-arrow"></span>
+        </a>
+        <h1 class="top-bar__title">Présentation</h1>
+    </header>
 
-  <main class="presentation-content">
-    <div class="candidate-image-section">
-      <img src="/images/pa.jpg" alt="Ahoua Don Mello" class="candidate-main-image" />
+    <div class="screen__body screen__body--compact presentation-body">
+        <div class="content-wide">
+            <h2 class="presentation-heading">Présentation du candidat</h2>
+
+            <div class="presentation-layout">
+                <div class="presentation-hero">
+                    <img src="/images/pa.jpg" alt="Ahoua Don Mello" class="presentation-hero__image">
+                </div>
+
+                <div class="presentation-layout__content">
+                    <p class="presentation-text">
+                        <strong>Ahoua Don Mello</strong>, né le 23 juin 1958 à Bongouanou, est un enseignant-chercheur et homme politique ivoirien.
+                        Il dirige le Bureau national d'études techniques et de développement de 2000 à 2011. Ahoua Don Mello se déclare candidat à l'élection présidentielle de 2025.
+                    </p>
+                </div>
+            </div>
+
+            <div class="presentation-divider"></div>
+
+            <section class="priorities">
+                <header class="priorities__header">
+                    <span class="priorities__icon">
+                        <img src="/images/c.png" alt="Cible">
+                    </span>
+                    <h3 class="priorities__title">Nos priorités pour la Côte d'Ivoire</h3>
+                </header>
+
+                <div class="priorities__grid">
+                    <figure class="priorities__card">
+                        <img src="/images/a.png" alt="Éducation" class="priorities__image">
+                    </figure>
+                    <figure class="priorities__card">
+                        <img src="/images/b.png" alt="Santé" class="priorities__image">
+                    </figure>
+                </div>
+            </section>
+        </div>
     </div>
 
-    <div class="candidate-description">
-      <p class="description-text">
-        <strong>Ahoua Don Mello</strong>, nÃ© le 23 juin 1958 Ã  Bongouanou, est un enseignant-chercheur et homme politique ivoirien. Il dirige le Bureau national d'Ã©tudes techniques et de dÃ©veloppement de 2000 Ã  2011. Ahoua Don Mello se dÃ©clare candidat Ã  l'Ã©lection prÃ©sidentielle de 2025.
-      </p>
+    <div class="screen__footer">
+        <a href="/network" class="primary-button presentation-button">Faire un don</a>
     </div>
-
-    <div class="priorities-section">
-      <div class="priorities-header">
-        <div class="priority-icon">
-          <img src="/images/c.png" alt="PrioritÃ©s" class="priority-icon-image" />
-        </div>
-        <h3 class="priorities-title">Nos prioritÃ©s pour la CÃ´te d'Ivoire</h3>
-      </div>
-
-      <div class="priorities-grid">
-        <div class="priority-card education-card">
-          <img src="/images/a.png" alt="Ã‰ducation" class="priority-image" />
-        </div>
-
-        <div class="priority-card health-card">
-          <img src="/images/b.png" alt="SantÃ©" class="priority-image" />
-        </div>
-      </div>
-
-      <div class="donation-section">
-        <a href="/network" class="donation-button">Faire un don</a>
-      </div>
-    </div>
-  </main>
 </div>
 @endsection

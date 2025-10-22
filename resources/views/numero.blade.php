@@ -1,49 +1,76 @@
-﻿@extends('layouts.blank')
+@extends('layouts.mobile')
 
-@section('title', 'NumÃ©ro')
+@section('title', 'Numéro')
 
-@section('content')
 @php
-  $config = [
-    'mtn' => ['name' => 'MTN MoMo', 'logo' => '/images/mtn.jpg', 'color' => '#fbbf24', 'bg' => '#fef3c7'],
-    'moov' => ['name' => 'MOOV Money', 'logo' => '/images/moov.jpg', 'color' => '#1e40af', 'bg' => '#dbeafe'],
-    'orange' => ['name' => 'ORANGE Money', 'logo' => '/images/orange.jpg', 'color' => '#ea580c', 'bg' => '#fed7aa'],
-    'wave' => ['name' => 'WAVE CI', 'logo' => '/images/Wave.jpg', 'color' => '#0891b2', 'bg' => '#e0f2fe'],
-  ];
-  $net = $config[$network] ?? $config['wave'];
+    $networks = [
+        'mtn' => ['name' => 'MTN MoMo', 'logo' => '/images/mtn.jpg', 'accent' => '#f59e0b', 'tint' => '#fff4dd'],
+        'moov' => ['name' => 'MOOV Money', 'logo' => '/images/moov.jpg', 'accent' => '#2563eb', 'tint' => '#e5efff'],
+        'orange' => ['name' => 'ORANGE Money', 'logo' => '/images/orange.jpg', 'accent' => '#f97316', 'tint' => '#ffe7da'],
+        'wave' => ['name' => 'WACE CI', 'logo' => '/images/Wave.jpg', 'accent' => '#0ea5e9', 'tint' => '#e1f6ff'],
+    ];
+    $selected = $networks[$network] ?? $networks['wave'];
 @endphp
 
-<section class="hero-section">
-  <div class="container">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 class="hero-title">Numéro</h1>
-        <p class="hero-slogan">Veuillez saisir votre numéro</p>
-      </div>
+@section('content')
+<div class="screen numero-screen">
+    <header class="top-bar">
+        <a href="javascript:history.back()" class="top-bar__leading" aria-label="Retour">
+            <span class="icon-arrow"></span>
+        </a>
+        <h1 class="top-bar__title">Numéro</h1>
+    </header>
+
+    <div class="screen__body screen__body--compact">
+        <div class="content-wide">
+            <div class="form-wrapper">
+                <p class="screen-lead">Veuillez saisir votre numéro {{ strtolower($selected['name']) }}</p>
+
+                <div class="pill numero-pill" style="--pill-accent: {{ $selected['accent'] }}; --pill-tint: {{ $selected['tint'] }};">
+                    <span class="pill__icon">
+                        <img src="{{ $selected['logo'] }}" alt="{{ $selected['name'] }}">
+                    </span>
+                    <span>{{ $selected['name'] }}</span>
+                </div>
+
+                <div class="input-stack">
+                    <label for="phoneInput" class="field-label">numéro</label>
+                    <div class="field-control">
+                        <span class="field-prefix">+225</span>
+                        <input
+                            type="tel"
+                            id="phoneInput"
+                            class="field-input"
+                            inputmode="numeric"
+                            placeholder="00 00 00 00 00"
+                            maxlength="14"
+                            autocomplete="tel"
+                            aria-label="Numéro de téléphone"
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
 
-<main class="numero-content" style="position:relative; z-index:1;">
-    <p class="instruction-text">Veuillez saisir votre numero {{ strtolower($net['name']) }}</p>
-
-    <div class="selected-network-box" style="background-color: {{ $net['bg'] }}">
-      <div class="network-icon-container" style="background-color: {{ $net['color'] }}">
-        <img src="{{ $net['logo'] }}" alt="{{ $net['name'] }}" class="network-logo">
-      </div>
-      <span class="network-name">{{ $net['name'] }}</span>
+    <div class="screen__footer">
+        <button type="button" class="primary-button" onclick="submitNumero()">Continuer</button>
     </div>
-
-    <div class="input-section">
-      <label class="input-label">numÃ©ro</label>
-      <div class="phone-input-container">
-        <span class="country-code">+225</span>
-        <input type="tel" id="phoneInput" class="phone-input" placeholder="00 00 00 00 00" maxlength="14" />
-      </div>
-    </div>
-  </main>
-
-  <div class="continue-section">
-    <button class="continue-button" onclick="(function(){ var v=document.getElementById('phoneInput').value.trim(); if(v){ window.location.href='/montant?network={{ $network }}&phone='+encodeURIComponent('+225 '+v); } })()">Continuer</button>
-  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+    function submitNumero() {
+        var input = document.getElementById('phoneInput');
+        var value = input.value.replace(/\s+/g, '').trim();
+        if (!value) {
+            input.focus();
+            return;
+        }
+        var formatted = value.match(/.{1,2}/g)?.join(' ') || value;
+        var url = '/montant?network={{ $network }}&phone=' + encodeURIComponent('+225 ' + formatted);
+        window.location.href = url;
+    }
+</script>
+@endpush
